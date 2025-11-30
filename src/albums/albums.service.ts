@@ -1,15 +1,25 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { v4 as uuidv4, validate as isUuid } from 'uuid';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { Album } from './types';
 import { TracksService } from '../tracks/tracks.service';
+import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Injectable()
 export class AlbumsService {
   private albums: Map<string, Album> = new Map();
 
-  constructor(private readonly tracksService: TracksService) { }
+  constructor(
+    private readonly tracksService: TracksService,
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
+  ) { }
 
   create(createAlbumDto: CreateAlbumDto) {
     const id = uuidv4();
@@ -51,6 +61,8 @@ export class AlbumsService {
     this.albums.delete(id);
 
     this.tracksService.updateAlbumIdToNull(id);
+
+    this.favoritesService.removeAlbumFromFavorites(id);
   }
 
   validateUuid(id: string): boolean {
