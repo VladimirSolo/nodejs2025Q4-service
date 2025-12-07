@@ -20,41 +20,41 @@ export class ArtistsController {
   constructor(private readonly artistsService: ArtistsService) { }
 
   @Get()
-  findAll(): Artist[] {
-    return this.artistsService.findAll();
+  async findAll(): Promise<Artist[]> {
+    return await this.artistsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Artist {
+  async findOne(@Param('id') id: string): Promise<Artist> {
     if (!this.artistsService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.artistsService.findOne(id);
+    return await this.artistsService.findOne(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createArtistDto: CreateArtistDto): Artist {
-    return this.artistsService.create(createArtistDto);
+  async create(@Body() createArtistDto: CreateArtistDto): Promise<Artist> {
+    return await this.artistsService.create(createArtistDto);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateArtistDto: UpdateArtistDto,
-  ): Artist {
+  ): Promise<Artist> {
     if (!this.artistsService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.artistsService.update(id, updateArtistDto);
+    return await this.artistsService.update(id, updateArtistDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): void {
+  async remove(@Param('id') id: string): Promise<void> {
     if (!this.artistsService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    this.artistsService.remove(id);
+    await this.artistsService.remove(id);
   }
 }

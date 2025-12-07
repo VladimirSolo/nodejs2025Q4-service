@@ -21,40 +21,40 @@ export class AlbumsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createAlbumDto: CreateAlbumDto): Album {
-    return this.albumsService.create(createAlbumDto);
+  async create(@Body() createAlbumDto: CreateAlbumDto): Promise<Album> {
+    return await this.albumsService.create(createAlbumDto);
   }
 
   @Get()
-  findAll(): Album[] {
-    return this.albumsService.findAll();
+  async findAll(): Promise<Album[]> {
+    return await this.albumsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Album {
+  async findOne(@Param('id') id: string): Promise<Album> {
     if (!this.albumsService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.albumsService.findOne(id);
+    return await this.albumsService.findOne(id);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
-  ): Album {
+  ): Promise<Album> {
     if (!this.albumsService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.albumsService.update(id, updateAlbumDto);
+    return await this.albumsService.update(id, updateAlbumDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<void> {
     if (!this.albumsService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.albumsService.remove(id);
+    await this.albumsService.remove(id);
   }
 }

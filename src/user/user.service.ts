@@ -1,57 +1,71 @@
 import { Injectable } from '@nestjs/common';
-import { randomUUID } from 'crypto';
+import { PrismaService } from '../prisma/prisma.service';
 import { User, UserResponse } from './types';
 
 @Injectable()
 export class UserService {
-  private users: Map<string, User> = new Map();
+  constructor(private readonly prisma: PrismaService) { }
 
-  create(login: string, password: string): UserResponse {
+  async create(login: string, password: string): Promise<UserResponse> {
     const timestamp = Date.now();
-    const user: User = {
-      id: randomUUID(),
-      login,
-      password,
-      version: 1,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
+    const user = await this.prisma.user.create({
+      data: {
+        login,
+        password,
+        version: 1,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      },
+    });
 
-    this.users.set(user.id, user);
     return this.excludePassword(user);
   }
 
-  findAll(): UserResponse[] {
-    return Array.from(this.users.values()).map((user) =>
-      this.excludePassword(user),
-    );
+  async findAll(): Promise<UserResponse[]> {
+    const users = await this.prisma.user.findMany();
+    return users.map((user) => this.excludePassword(user));
   }
 
-  findOne(id: string): User | undefined {
-    return this.users.get(id);
+  async findOne(id: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    return user;
   }
 
-  update(id: string, newPassword: string): UserResponse {
-    const user = this.users.get(id);
+  async update(id: string, newPassword: string): Promise<UserResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
     if (!user) {
       throw new Error('User not found');
     }
 
-    user.password = newPassword;
-    user.version += 1;
-    user.updatedAt = Date.now();
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: {
+        password: newPassword,
+        version: user.version + 1,
+      },
+    });
 
-    this.users.set(id, user);
-    return this.excludePassword(user);
+    return this.excludePassword(updatedUser);
   }
 
-  delete(id: string): boolean {
-    return this.users.delete(id);
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.user.delete({
+        where: { id },
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   excludePassword(user: User): UserResponse {
-    const userResponse = { ...user };
-    delete userResponse.password;
+    const { password, ...userResponse } = user;
     return userResponse;
   }
 }
