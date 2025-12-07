@@ -1,4 +1,4 @@
-# Home Library Service
+# Home Library Service 2
 
 ## Prerequisites
 
@@ -17,56 +17,40 @@ git clone {repository URL}
 npm install
 ```
 
-## Running application
+## add .env
 
 ```
-npm start
+DATABASE_URL="postgresql://postgres:postgres@postgres:5432/music_db?schema=public"
+NODE_ENV=production
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+## Running docker
 
-## Testing
-
-After application running open new terminal and enter:
-
-To run all tests without authorization
+# development start for hot reload
 
 ```
-npm run test
+docker-compose -f docker-compose.dev.yml up
 ```
 
-To run only one of all test suites
+# development down
 
 ```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
+docker-compose -f docker-compose.dev.yml down
 
 ```
-npm run test:auth
-```
 
-To run only specific test suite with authorization
+# production start
 
 ```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
+docker-compose up --build
 
 ```
-npm run lint
-```
+
+# production down
 
 ```
-npm run format
+docker-compose down -v
 ```
 
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+Application is running on: http://localhost:3000
+API Documentation available at: http://localhost:3000/doc
