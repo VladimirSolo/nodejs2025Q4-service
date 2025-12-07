@@ -1,7 +1,7 @@
 # Dockerfile for NestJS application
 
 # Build stage
-FROM node:18-alpine AS builde
+FROM node:18-alpine AS builder
 
 # Install OpenSSL for Prisma
 RUN apk add --no-cache openssl libc6-compat

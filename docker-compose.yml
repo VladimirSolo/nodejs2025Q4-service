@@ -28,6 +28,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: production
     image: home-library-service-api-app:latest
     container_name: home-library-service-api-app
     restart: unless-stopped
@@ -50,7 +51,7 @@ services:
           '--no-verbose',
           '--tries=1',
           '--spider',
-          'http://localhost:4000',
+          'http://localhost:3000',
         ]
       interval: 30s
       timeout: 10s

@@ -1,0 +1,62 @@
+# ====================================
+# Development Dockerfile with Hot Reload
+# ====================================
+# 
+# This Dockerfile is optimized for development:
+# - Includes ALL dependencies (dev + prod)
+# - No multi-stage build (faster rebuilds)
+# - Source code is mounted via volume
+# - Runs in watch mode for hot reload
+#
+# Usage:
+#   docker-compose -f docker-compose.dev.yml up
+#
+# Features:
+#   ✅ Hot reload on file changes
+#   ✅ Full dev dependencies
+#   ✅ TypeScript compilation on-the-fly
+#   ✅ Prisma Client generation
+#   ✅ Fast iteration cycle
+# ====================================
+
+FROM node:18-alpine
+
+# Install OpenSSL for Prisma and other dependencies
+RUN apk add --no-cache \
+    openssl \
+    libc6-compat \
+    git
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install ALL dependencies (including devDependencies)
+# Note: We need dev dependencies for hot reload and TypeScript compilation
+RUN npm install
+
+# Copy Prisma schema
+COPY prisma ./prisma/
+
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Copy configuration files
+# (source code will be mounted via volume in docker-compose.dev.yml)
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+
+# Expose application port
+EXPOSE 3000
+
+# Health check (development)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+# Start application in development mode with hot reload
+# This command will:
+# 1. Run database migrations
+# 2. Start NestJS in watch mode (auto-restart on changes)
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:dev"]
