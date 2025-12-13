@@ -52,6 +52,8 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 logs/app.log
 ```
 
+**If you run Docker, the logs are recorded in a file inside the container.**
+
 ## Testing
 
 To run all test with authorization
