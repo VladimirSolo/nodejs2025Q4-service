@@ -17,6 +17,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UserResponse } from './types';
 import { validate as isUuid } from 'uuid';
+import * as bcrypt from 'bcrypt';
 
 @Controller('user')
 export class UserController {
@@ -25,10 +26,8 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponse> {
-    return await this.userService.create(
-      createUserDto.login,
-      createUserDto.password,
-    );
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    return await this.userService.create(createUserDto.login, hashedPassword);
   }
 
   @Get()
@@ -64,11 +63,20 @@ export class UserController {
       throw new NotFoundException(`User with id ${id} not found`);
     }
 
-    if (user.password !== updatePasswordDto.oldPassword) {
+    const isPasswordValid = await bcrypt.compare(
+      updatePasswordDto.oldPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
       throw new ForbiddenException('Old password is incorrect');
     }
 
-    return await this.userService.update(id, updatePasswordDto.newPassword);
+    const hashedNewPassword = await bcrypt.hash(
+      updatePasswordDto.newPassword,
+      10,
+    );
+    return await this.userService.update(id, hashedNewPassword);
   }
 
   @Delete(':id')

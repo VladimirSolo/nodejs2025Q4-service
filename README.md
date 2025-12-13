@@ -20,26 +20,52 @@ npm install
 ## add .env
 
 ```
-DATABASE_URL="postgresql://postgres:postgres@postgres:5432/music_db?schema=public"
+PORT=4000
+
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/music_db?schema=public
 NODE_ENV=production
+
+LOG_LEVEL=log
+LOG_FILE_MAX_SIZE=1024
+
+JWT_ACCESS_SECRET=a7f8d9e3b2c1a5f6e4d8c9b7a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4
+JWT_REFRESH_SECRET=f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5
+JWT_ACCESS_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
 ```
 
-# 1. Running only PostgreSQL
+## Running application
 
 ```
-docker-compose up -d postgres
+npm start
 ```
 
-# 2. Create migrate - copy and paste in CLI
+All
+
+After starting the app on port (4000 as default) you can open
+in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
+For more information about OpenAPI/Swagger please visit https://swagger.io/.
+
+## Logs are recorded in
 
 ```
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/music_db?schema=public" npx prisma migrate dev --name init
+logs/app.log
 ```
 
-# 4. Stop PostgreSQL
+**If you run Docker, the logs are recorded in a file inside the container.**
+
+## Testing
+
+To run all test with authorization
 
 ```
-docker-compose down
+npm run test:auth
+```
+
+To run only specific test suite with authorization
+
+```
+npm run test:auth -- <path to suite>
 ```
 
 ## Running docker
@@ -56,19 +82,3 @@ docker-compose up --build
 ```
 docker-compose down -v
 ```
-
-# development start for hot reload
-
-```
-docker-compose -f docker-compose.dev.yml up
-```
-
-# development down
-
-```
-docker-compose -f docker-compose.dev.yml down
-
-```
-
-Application is running on: http://localhost:3000
-API Documentation available at: http://localhost:3000/doc

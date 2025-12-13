@@ -6,11 +6,35 @@ import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import * as path from 'path';
+import { LoggingService } from './logging/logging.service';
+// import { AllExceptionsFilter } from './logging/all-exceptions.filter';
 
 dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const loggingService = app.get(LoggingService);
+
+  // app.useGlobalFilters(new AllExceptionsFilter(loggingService));
+
+  process.on('uncaughtException', (error: Error) => {
+    loggingService.error(
+      `Uncaught Exception: ${error.message}`,
+      error.stack,
+      'UncaughtException',
+    );
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason: any) => {
+    loggingService.error(
+      `Unhandled Rejection: ${reason}`,
+      reason?.stack,
+      'UnhandledRejection',
+    );
+    process.exit(1);
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

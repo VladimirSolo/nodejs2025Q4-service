@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, UserResponse } from './types';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -8,17 +9,26 @@ export class UserService {
 
   async create(login: string, password: string): Promise<UserResponse> {
     const timestamp = Math.floor(Date.now() / 1000);
-    const user = await this.prisma.user.create({
-      data: {
-        login,
-        password,
-        version: 1,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      },
-    });
 
-    return this.excludePassword(user);
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          login,
+          password,
+          version: 1,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        },
+      });
+      return this.excludePassword(user);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ConflictException('User with this login already exists');
+        }
+      }
+      throw error;
+    }
   }
 
   async findAll(): Promise<UserResponse[]> {
@@ -47,6 +57,7 @@ export class UserService {
       data: {
         password: newPassword,
         version: user.version + 1,
+        updatedAt: Math.floor(Date.now() / 1000),
       },
     });
 
