@@ -32,6 +32,8 @@ services:
     image: home-library-service-api-app:latest
     container_name: home-library-service-api-app
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/music_db?schema=public
       NODE_ENV: production
