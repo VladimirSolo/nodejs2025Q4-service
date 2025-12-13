@@ -45,7 +45,7 @@ coverage/
 .nyc_output/
 
 # Prisma
-prisma/migrations/
+# prisma/migrations/
 
 # Logs
 logs/

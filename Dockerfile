@@ -1,5 +1,4 @@
 # Dockerfile for NestJS application
-
 # Build stage
 FROM node:18-alpine AS builder
 
@@ -34,6 +33,8 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+
+# Copy Prisma schema AND migrations directory
 COPY prisma ./prisma/
 
 # Install production dependencies only
@@ -47,11 +48,11 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 RUN npx prisma generate
 
 # Expose application port
-EXPOSE 3000
+EXPOSE 4000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:4000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start application
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+# Start application (this will be overridden by docker-compose)
+CMD ["node", "dist/main"]
