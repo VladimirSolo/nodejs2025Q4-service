@@ -7,7 +7,7 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(login: string, password: string): Promise<UserResponse> {
-    const timestamp = Date.now();
+    const timestamp = Math.floor(Date.now() / 1000);
     const user = await this.prisma.user.create({
       data: {
         login,
