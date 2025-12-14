@@ -25,8 +25,8 @@ export class FavoritesController {
     description: 'Successfully retrieved all favorites',
     type: Favorites,
   })
-  findAll() {
-    return this.favoritesService.findAll();
+  async findAll() {
+    return await this.favoritesService.findAll();
   }
 
   @Post('track/:id')
@@ -58,11 +58,11 @@ export class FavoritesController {
     status: 422,
     description: 'Track does not exist',
   })
-  addTrack(@Param('id') id: string): { message: string } {
+  async addTrack(@Param('id') id: string) {
     if (!this.favoritesService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.favoritesService.addTrack(id);
+    return await this.favoritesService.addTrack(id);
   }
 
   @Delete('track/:id')
@@ -85,11 +85,11 @@ export class FavoritesController {
     status: 404,
     description: 'Track not found in favorites',
   })
-  removeTrack(@Param('id') id: string): void {
+  async removeTrack(@Param('id') id: string): Promise<void> {
     if (!this.favoritesService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    this.favoritesService.removeTrack(id);
+    await this.favoritesService.removeTrack(id);
   }
 
   @Post('album/:id')
@@ -121,11 +121,11 @@ export class FavoritesController {
     status: 422,
     description: 'Album does not exist',
   })
-  addAlbum(@Param('id') id: string): { message: string } {
+  async addAlbum(@Param('id') id: string) {
     if (!this.favoritesService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.favoritesService.addAlbum(id);
+    return await this.favoritesService.addAlbum(id);
   }
 
   @Delete('album/:id')
@@ -148,11 +148,11 @@ export class FavoritesController {
     status: 404,
     description: 'Album not found in favorites',
   })
-  removeAlbum(@Param('id') id: string): void {
+  async removeAlbum(@Param('id') id: string): Promise<void> {
     if (!this.favoritesService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    this.favoritesService.removeAlbum(id);
+    await this.favoritesService.removeAlbum(id);
   }
 
   @Post('artist/:id')
@@ -184,11 +184,11 @@ export class FavoritesController {
     status: 422,
     description: 'Artist does not exist',
   })
-  addArtist(@Param('id') id: string): { message: string } {
+  async addArtist(@Param('id') id: string) {
     if (!this.favoritesService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.favoritesService.addArtist(id);
+    return await this.favoritesService.addArtist(id);
   }
 
   @Delete('artist/:id')
@@ -211,10 +211,10 @@ export class FavoritesController {
     status: 404,
     description: 'Artist not found in favorites',
   })
-  removeArtist(@Param('id') id: string): void {
+  async removeArtist(@Param('id') id: string): Promise<void> {
     if (!this.favoritesService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    this.favoritesService.removeArtist(id);
+    await this.favoritesService.removeArtist(id);
   }
 }

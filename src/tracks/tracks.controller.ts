@@ -20,41 +20,41 @@ export class TracksController {
   constructor(private readonly tracksService: TracksService) { }
 
   @Get()
-  findAll(): Track[] {
-    return this.tracksService.findAll();
+  async findAll(): Promise<Track[]> {
+    return await this.tracksService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Track {
+  async findOne(@Param('id') id: string): Promise<Track> {
     if (!this.tracksService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.tracksService.findOne(id);
+    return await this.tracksService.findOne(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createTrackDto: CreateTrackDto): Track {
-    return this.tracksService.create(createTrackDto);
+  async create(@Body() createTrackDto: CreateTrackDto): Promise<Track> {
+    return await this.tracksService.create(createTrackDto);
   }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateTrackDto: UpdateTrackDto,
-  ): Track {
+  ): Promise<Track> {
     if (!this.tracksService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    return this.tracksService.update(id, updateTrackDto);
+    return await this.tracksService.update(id, updateTrackDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): void {
+  async remove(@Param('id') id: string): Promise<void> {
     if (!this.tracksService.validateUuid(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    this.tracksService.remove(id);
+    await this.tracksService.remove(id);
   }
 }

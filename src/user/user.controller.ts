@@ -1,85 +1,86 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  NotFoundException,
+  BadRequestException,
   HttpCode,
   HttpStatus,
-  NotFoundException,
-  Param,
-  Post,
-  Put,
-  BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { validate as isUUID } from 'uuid';
 import { UserService } from './user.service';
-import { UserResponse } from './types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { UserResponse } from './types';
+import { validate as isUuid } from 'uuid';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createUserDto: CreateUserDto): Promise<UserResponse> {
+    return await this.userService.create(
+      createUserDto.login,
+      createUserDto.password,
+    );
+  }
+
   @Get()
-  @HttpCode(HttpStatus.OK)
-  findAll(): UserResponse[] {
-    return this.userService.findAll();
+  async findAll(): Promise<UserResponse[]> {
+    return await this.userService.findAll();
   }
 
   @Get(':id')
-  @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: string): UserResponse {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid user ID format');
+  async findOne(@Param('id') id: string): Promise<UserResponse> {
+    if (!isUuid(id)) {
+      throw new BadRequestException('Invalid UUID format');
     }
 
-    const user = this.userService.findOne(id);
+    const user = await this.userService.findOne(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User with id ${id} not found`);
     }
+
     return this.userService.excludePassword(user);
   }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  create(@Body() createUserDto: CreateUserDto): UserResponse {
-    return this.userService.create(createUserDto.login, createUserDto.password);
-  }
-
   @Put(':id')
-  @HttpCode(HttpStatus.OK)
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-  ): UserResponse {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid user ID format');
+  ): Promise<UserResponse> {
+    if (!isUuid(id)) {
+      throw new BadRequestException('Invalid UUID format');
     }
 
-    const user = this.userService.findOne(id);
+    const user = await this.userService.findOne(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User with id ${id} not found`);
     }
 
     if (user.password !== updatePasswordDto.oldPassword) {
       throw new ForbiddenException('Old password is incorrect');
     }
 
-    return this.userService.update(id, updatePasswordDto.newPassword);
+    return await this.userService.update(id, updatePasswordDto.newPassword);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  delete(@Param('id') id: string): void {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid user ID format');
+  async remove(@Param('id') id: string): Promise<void> {
+    if (!isUuid(id)) {
+      throw new BadRequestException('Invalid UUID format');
     }
 
-    const deleted = this.userService.delete(id);
+    const deleted = await this.userService.delete(id);
     if (!deleted) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(`User with id ${id} not found`);
     }
   }
 }

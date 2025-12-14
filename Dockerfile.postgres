@@ -1,0 +1,16 @@
+# Dockerfile for PostgreSQL database
+FROM postgres:15-alpine
+
+# Set environment variables
+ENV POSTGRES_DB=music_db
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+
+# Expose PostgreSQL port
+EXPOSE 5432
+
+# Add health check
+HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
+  CMD pg_isready -U postgres -d music_db || exit 1
+
+# PostgreSQL will automatically initialize the database on first run
