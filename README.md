@@ -24,24 +24,6 @@ DATABASE_URL="postgresql://postgres:postgres@postgres:5432/music_db?schema=publi
 NODE_ENV=production
 ```
 
-# 1. Running only PostgreSQL
-
-```
-docker-compose up -d postgres
-```
-
-# 2. Create migrate - copy and paste in CLI
-
-```
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/music_db?schema=public" npx prisma migrate dev --name init
-```
-
-# 4. Stop PostgreSQL
-
-```
-docker-compose down
-```
-
 ## Running docker
 
 # production start
